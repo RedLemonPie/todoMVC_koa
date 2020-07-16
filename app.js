@@ -3,6 +3,9 @@ const Koa = require("koa")
 const router = require("./router/index")
 const bodyParser = require("koa-body")
 const cors = require('koa2-cors');
+const {
+	checkToken
+} = require('./lib/jwt')
 // const jwt = require('koa-jwt');
 // const SECRETKEY = require("./config/pwd")
 var app = new Koa()
@@ -20,7 +23,13 @@ app.use(cors({
 }))
 
 app.use(bodyParser())
-// app.use(jwt({ secret: SECRETKEY }).unless({ path: [/^\/login/] }));
+app.use(async (ctx, next) => {
+	let res = await checkToken(ctx.request.header.authorization)
+	if (res) {
+		await next();
+	}
+
+});
 app.use(router.routes())
 	.use(async (ctx) => {
 		console.log("404 Not Found")
