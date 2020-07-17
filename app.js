@@ -1,45 +1,85 @@
-//Koa2/app.js
-const Koa = require("koa")
+// //Koa2/app.js
+const Koa = require('koa')
+const next = require('next')
+// const Router = require('@koa/router')
 const router = require("./router/index")
-const bodyParser = require("koa-body")
-const cors = require('koa2-cors');
-const {
-	checkToken
-} = require('./lib/jwt')
-// const jwt = require('koa-jwt');
-// const SECRETKEY = require("./config/pwd")
-var app = new Koa()
 
-app.use(cors({
-	origin: function (ctx) {
-		return '*';
-		// return 'http://localhost:9999';
-	},
-	exposeHeaders: ['WWW-Authenticate', 'Server-Authorization'],
-	maxAge: 5,
-	credentials: true,
-	allowMethods: ['GET', 'POST', 'DELETE'],
-	allowHeaders: ['Content-Type', 'Authorization', 'Accept'],
-}))
+const port = parseInt(process.env.PORT, 10) || 3000
+const dev = process.env.NODE_ENV !== 'production'
+const app = next({ dev })
+const handle = app.getRequestHandler()
 
-app.use(bodyParser())
-app.use(async (ctx, next) => {
-	// console.log(checkToken(ctx.request.header.authorization))
-	if(ctx.request.url.indexOf('/login/') == 0){
-		await next()
-	}else{
-		let res = await checkToken(ctx.request.header.authorization)
-		ctx.userInfo = res
-		if (res) {
-			await next();
-		}
-	}
+app.prepare().then(() => {
+  const server = new Koa()
+  // const router = new Router()
 
-});
-app.use(router.routes())
-	.use(async (ctx) => {
-		console.log("404 Not Found")
-	})
+  router.get('/a', async (ctx) => {
+    await app.render(ctx.req, ctx.res, '/a', ctx.query)
+    ctx.respond = false
+  })
 
-console.log("StartAt : http://127.0.0.1:3030")
-app.listen(3030)
+  router.get('/b', async (ctx) => {
+    await app.render(ctx.req, ctx.res, '/b', ctx.query)
+    ctx.respond = false
+  })
+
+  router.all('*', async (ctx) => {
+    await handle(ctx.req, ctx.res)
+    ctx.respond = false
+  })
+
+  server.use(async (ctx, next) => {   
+    ctx.res.statusCode = 200
+    await next()
+  })
+
+  server.use(router.routes())
+  server.listen(port, () => {
+    console.log(`> Ready on http://localhost:${port}`)
+  })
+})
+
+// const Koa = require("koa")
+// const router = require("./router/index")
+// const bodyParser = require("koa-body")
+// const cors = require('koa2-cors');
+// const {
+// 	checkToken
+// } = require('./lib/jwt')
+// // const jwt = require('koa-jwt');
+// // const SECRETKEY = require("./config/pwd")
+// var app = new Koa()
+
+// app.use(cors({
+// 	origin: function (ctx) {
+// 		return '*';
+// 		// return 'http://localhost:9999';
+// 	},
+// 	exposeHeaders: ['WWW-Authenticate', 'Server-Authorization'],
+// 	maxAge: 5,
+// 	credentials: true,
+// 	allowMethods: ['GET', 'POST', 'DELETE'],
+// 	allowHeaders: ['Content-Type', 'Authorization', 'Accept'],
+// }))
+
+// app.use(bodyParser())
+// app.use(async (ctx, next) => {
+// 	// console.log(checkToken(ctx.request.header.authorization))
+// 	if(ctx.request.url.indexOf('/login/') == 0){
+// 		await next()
+// 	}else{
+// 		let res = await checkToken(ctx.request.header.authorization)
+// 		ctx.userInfo = res
+// 		if (res) {
+// 			await next();
+// 		}
+// 	}
+
+// });
+// app.use(router.routes())
+// 	.use(async (ctx) => {
+// 		console.log("404 Not Found")
+// 	})
+
+// console.log("StartAt : http://127.0.0.1:3030")
+// app.listen(3030)
