@@ -24,9 +24,15 @@ app.use(cors({
 
 app.use(bodyParser())
 app.use(async (ctx, next) => {
-	let res = await checkToken(ctx.request.header.authorization)
-	if (res) {
-		await next();
+	// console.log(checkToken(ctx.request.header.authorization))
+	if(ctx.request.url.indexOf('/login/') == 0){
+		await next()
+	}else{
+		let res = await checkToken(ctx.request.header.authorization)
+		ctx.userInfo = res
+		if (res) {
+			await next();
+		}
 	}
 
 });

@@ -7,13 +7,15 @@ CREATE TABLE `todolist`.`user`  (
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 
-CREATE TABLE `todolist`.`todo`  (
+CREATE TABLE `todolist`.`Untitled`  (
   `id` int(0) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY,
   `user_id` int(0) NOT NULL,
   `detail` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
   `status` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
   `valid` tinyint(0) NULL DEFAULT NULL,
   `sort` int(0) NULL DEFAULT NULL,
+  `modify_time` datetime(0) NULL DEFAULT NULL,
+  `create_time` datetime(0) NULL DEFAULT NULL,
   PRIMARY KEY (`id`, `user_id`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 

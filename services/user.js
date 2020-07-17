@@ -12,6 +12,7 @@ async function checkUser(username, password) {
 		 if (res.length == 1 && res[0].username === username) {
 				let token = createToken({
 					username:username,
+					user_id:res[0].id
 				})
 		 return { msg: "登陆成功", code: 200 ,id:res[0].id,token }
 		 } else {
